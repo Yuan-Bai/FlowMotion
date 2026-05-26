@@ -1,0 +1,39 @@
+# Ignore everything by default. This project keeps only source scripts, scenes,
+# and Animator-related Unity assets in version control.
+*
+
+# Allow Git to traverse folders so nested keep-rules can match.
+!*/
+/.codex*/
+
+# Keep this repository guidance and ignore file.
+!.gitignore
+!AGENTS.md
+!LICENSE
+
+# Unity scripts.
+!Assets/**/*.cs
+!Assets/**/*.cs.meta
+
+# Unity scenes.
+!Assets/**/*.unity
+!Assets/**/*.unity.meta
+
+# Animator controller assets.
+!Assets/**/*.controller
+!Assets/**/*.controller.meta
+!Assets/**/*.overrideController
+!Assets/**/*.overrideController.meta
+
+# Always ignore Unity/editor generated data and local IDE files.
+/Library/
+/Temp/
+/Obj/
+/Logs/
+/Build/
+/Builds/
+/UserSettings/
+/.vscode/
+*.csproj
+*.csproj.lscache
+*.sln

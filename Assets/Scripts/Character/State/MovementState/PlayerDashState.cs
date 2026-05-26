@@ -10,18 +10,28 @@ public class PlayerDashState : MovementState
     public override void Enter()
     {
         base.Enter();
+        aniBridge.SetHasInput(false);
+        // context.aniBridge.SetMoveSpeed(0);
         if (context.inputReader.moveIsPressed)
         {
-            context.aniBridge.SetDashFEnable(true);
-            context.aniBridge.SetDashTrigger();
+            aniBridge.PlayClip("DashF", 0.1f); 
         }
         else
         {
-            context.aniBridge.SetDashFEnable(false);
-            context.aniBridge.SetDashTrigger();
+            aniBridge.PlayClip("DashB", 0.1f); 
         }
 
+        context.horizontalVelocity = Vector3.zero;
+        context.verticalVelocity = 0.0f;
+        context.isRootMotion = true;
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
         context.canEnterSprintImpulse = false;
+        context.canEnterMoveBlend = false;
+        context.isRootMotion = false;
     }
 
     public override void Update()
@@ -29,9 +39,25 @@ public class PlayerDashState : MovementState
         // 检查鼠标右键按下时间，判断是否进入sprint（只有在进入窗口才可以进入）
         // 如果按下后快速松开又按下，触发连续冲刺
 
-        if (context.canEnterSprintImpulse && playerInput.moveIsPressed)
+        if (playerInput.moveIsPressed)
         {
-            ChangeState(PlayerLocomotionStateId.Sprint_Impulse);
+            if (context.canEnterMoveBlend)
+            {
+                // 暂时不考虑进入sprint
+                aniBridge.PlayClip("MoveBlend", 0.25f, 0.55f);
+                if (context.runModeEnabled)
+                {
+                    ChangeState(PlayerLocomotionStateId.Run);
+                }
+                else
+                {
+                    ChangeState(PlayerLocomotionStateId.Walk);
+                }
+            }
+            else if (context.canEnterSprintImpulse)
+            {
+                ChangeState(PlayerLocomotionStateId.Sprint_Impulse);
+            }
         }
     }
 
@@ -39,30 +65,16 @@ public class PlayerDashState : MovementState
     public override void OnAnimationEnterEvent()
     {
         base.OnAnimationEnterEvent();
-        context.horizontalVelocity = Vector3.zero;
-        context.verticalVelocity = 0.0f;
-        // context.aniBridge.SetMoveSpeed(0);
     }
 
+    public override void OnAnimationCompleteEvent()
+    {
+        base.OnAnimationCompleteEvent();
+        ChangeState(PlayerLocomotionStateId.Idle);
+    }
+
+    // 切换后由于currentstate改变，这个函数可能永远不会被调用
     public override void OnAnimationExitEvent()
     {
-        // dash也是只播放一次，如果没有进入sprint或被其他状态打断就进入idle
-        if (playerInput.moveIsPressed)
-        {
-            context.aniBridge.SetDashToMoveTrigger();
-            if (context.runModeEnabled)
-            {
-                ChangeState(PlayerLocomotionStateId.Run);
-            }
-            else
-            {
-                ChangeState(PlayerLocomotionStateId.Walk);
-            }
-        }
-        else
-        {
-            context.aniBridge.SetDashToIdleTrigger();
-            ChangeState(PlayerLocomotionStateId.Idle);
-        }
     }
 }

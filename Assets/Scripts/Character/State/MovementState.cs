@@ -11,6 +11,7 @@ public class MovementState : IState<PlayerLocomotionStateId>
     #region context中的变量
     protected PlayerInputReader playerInput;
     protected CharacterController controller;
+    protected PlayerAnimationBridge aniBridge;
     #endregion
 
     public MovementState(PlayerLocomotionStateId id, PlayerContext context, PlayerLocomotionConfig config)
@@ -21,6 +22,7 @@ public class MovementState : IState<PlayerLocomotionStateId>
 
         playerInput = context.inputReader;
         controller = context.controller;
+        aniBridge = context.aniBridge;
     }
 
     public virtual void Enter()
@@ -45,7 +47,7 @@ public class MovementState : IState<PlayerLocomotionStateId>
     {
     }
 
-    public void OnAnimationTransitionEvent()
+    public virtual void OnAnimationCompleteEvent()
     {
     }
 

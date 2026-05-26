@@ -5,7 +5,6 @@ using UnityEngine;
 [RequireComponent(typeof(GroundDetector))]
 [RequireComponent(typeof(PlayerMotor))]
 
-[RequireComponent(typeof(PlayerAnimationBridge))]
 
 public class Player : MonoBehaviour
 {
@@ -15,7 +14,7 @@ public class Player : MonoBehaviour
 
     #region 状态变量
     private StateMachine<PlayerLocomotionStateId> stateMachine;
-    private PlayerContext _context;
+    [SerializeField] private PlayerContext _context;
     #endregion
 
     #region Motor
@@ -23,27 +22,30 @@ public class Player : MonoBehaviour
     private PlayerMotor _motor;
     #endregion
 
-    [SerializeField] private Transform leftFoot;
-    [SerializeField] private Transform rightFoot;
+    private Animator _animator;
+    private PlayerInputReader _inputReader;
 
     private void Awake()
     {
         _groundDetector = GetComponent<GroundDetector>();
         _motor = GetComponent<PlayerMotor>();
+        _animator = GetComponent<Animator>();
+        _inputReader = GetComponent<PlayerInputReader>();
 
         stateMachine = new();
         _context = new();
-        _context.inputReader = GetComponent<PlayerInputReader>();
+        _context.inputReader = _inputReader;
         _context.root = transform;
         _context.controller = GetComponent<CharacterController>();
-        _context.animator = GetComponent<Animator>();
         _context.camTransform = Camera.main.transform;
         _context.stateMachine = stateMachine;
         _context.aniBridge = GetComponent<PlayerAnimationBridge>();
+        _context.timeHub = new PlayerTimeHub(stateMachine);
 
         InitialState();
         _motor.Initialize(_context, config, _groundDetector);
-        _context.aniBridge.Initialize(_context);
+        _context.aniBridge.Initialize(_animator, stateMachine, _context);
+        // _context.aniBridge.Initialize(_context);
     }
 
     private void Start()
@@ -61,29 +63,51 @@ public class Player : MonoBehaviour
         stateMachine.AddState(new PlayerJumpState(PlayerLocomotionStateId.Jump, _context, config));
         stateMachine.AddState(new PlayerMoveStoppingState(PlayerLocomotionStateId.MoveStop, _context, config));
         stateMachine.AddState(new PlayerSprintImpulseState(PlayerLocomotionStateId.Sprint_Impulse, _context, config));
+        stateMachine.AddState(new PlayerJumpSecondState(PlayerLocomotionStateId.JumpSecond, _context, config));
+        stateMachine.AddState(new PlayerFallState(PlayerLocomotionStateId.Fall, _context, config));
+        stateMachine.AddState(new PlayerLandState(PlayerLocomotionStateId.Land, _context, config));
+        stateMachine.AddState(new PlayerTurnbackState(PlayerLocomotionStateId.Turnback, _context, config));
+
     }
 
     private void Update()
     {
         // 用于一些角色状态的改变
-        SomeUpdate();
-
+        UpdateRunModeToggle();
+        _context.timeHub.Update(Time.deltaTime, Time.unscaledDeltaTime);
         _motor.UpdateGrounding();
         // 状态逻辑更新
         stateMachine.Update();
         _motor.ApplyMovement(Time.deltaTime);
-        if (stateMachine.CurrentStateId == PlayerLocomotionStateId.Dash)
+        if (stateMachine.CurrentStateId == PlayerLocomotionStateId.Sprint || stateMachine.CurrentStateId == PlayerLocomotionStateId.Turnback)
         {
             Debug.Log("player=>"+transform.position);
-            Debug.Log("camera=>"+_context.camTransform.position);
         }
-        // AnimatorStateInfo stateInfo = _context.animator.GetCurrentAnimatorStateInfo(0);
+        // AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
         // Debug.Log("当前 State Hash: " + stateInfo.shortNameHash);
+
+        // 获取当前动画状态的详细信息
+        // AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+        // // 获取当前状态的名称 (如 "Base Layer.Run")
+        // string currentStateName = stateInfo.fullPathHash.ToString(); // 通常使用哈希值判断
+        // Debug.Log("当前动画状态完整路径: " + currentStateName);
+
+        // // 如果想更直观地检查是否是特定状态，推荐使用 IsName 方法
+        // // 例如，检查当前状态是否是 "Run"
+        // if (stateInfo.IsName("Run")) 
+        // {
+        //     Debug.Log("当前在Run状态");
+        // }
+
+        // Debug.Log("player=>"+transform.position);
     }
 
-    private void SomeUpdate()
+    private void UpdateRunModeToggle()
     {
-        // 也许这个用事件会更好？不用每帧都判断
-        _context.runModeEnabled = _context.inputReader.moveSwitchStartedThisFrame ? !_context.runModeEnabled:_context.runModeEnabled;
+        if (_inputReader.moveSwitchStartedThisFrame)
+        {
+            _context.runModeEnabled = !_context.runModeEnabled;
+        }
     }
+
 }

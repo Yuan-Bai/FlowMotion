@@ -1,4 +1,5 @@
 
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public abstract class GroundedMoveState : MovementState
@@ -14,6 +15,7 @@ public abstract class GroundedMoveState : MovementState
     public override void Enter()
     {
         base.Enter();
+
         data = Id switch
         {
             PlayerLocomotionStateId.Walk => config.PlayerWalkData,
@@ -22,16 +24,65 @@ public abstract class GroundedMoveState : MovementState
             PlayerLocomotionStateId.Sprint_Impulse => config.PlayerSprintImpulseData,
             _ => config.PlayerWalkData
         };
+        aniBridge.SetHasInput(true);
+        aniBridge.SetMoveSpeed(data.moveSpeed);
+    }
 
-        context.aniBridge.SetMoveSpeedToTarget(data.moveSpeed);
-        context.aniBridge.SetStoppingEnabled(false);
+    public override void Exit()
+    {
+        base.Exit();
+        context.stopRequested = false;
+        context.timeHub.Cancel("MoveToStopMove");
     }
 
     public override void Update()
     {
+        // 如果取消移动输入
+        if (!playerInput.moveIsPressed && !context.stopRequested)
+        {
+            context.timeHub.Start("MoveToStopMove", 0.15f, true);
+            context.stopRequested = true;
+        }
+        if (playerInput.moveIsPressed)
+        {
+            context.timeHub.Cancel("MoveToStopMove");
+            context.stopRequested = false;
+        }
+        if (context.stopRequested && context.timeHub.IsFinished("MoveToStopMove"))
+        {
+            if (context.canEnterStop)
+            {
+                ChangeState(PlayerLocomotionStateId.MoveStop);
+                return;
+            }
+        }
+
+        if (playerInput.dashStartedThisFrame)
+        {
+            ChangeState(PlayerLocomotionStateId.Dash);
+            // sprint进入dash，应该保留进入sprint的flag，exit后sprintEnabled为false，故在此处重写置true
+            if (Id == PlayerLocomotionStateId.Sprint)
+            {
+                context.sprintEnabled = true;
+            }
+            return;
+        }
+        if (playerInput.jumpStartedThisFrame)
+        {
+            ChangeState(PlayerLocomotionStateId.Jump);
+            return;
+        }
+        UpdateMoveDirection(context.camTransform);
+        if (Id != PlayerLocomotionStateId.Walk && Id != PlayerLocomotionStateId.Run &&
+            Vector2.Dot(context.moveDirection, new Vector3(context.root.forward.x, 0.0f, context.root.forward.z)) < -0.7f
+        )
+        {
+            ChangeState(PlayerLocomotionStateId.Turnback);
+            context.sprintEnabled = true;
+            return;
+        }
         if (!context.stopRequested)
         {
-            UpdateMoveDirection(context.camTransform);
             UpdateVelocity(data);
         }
     }

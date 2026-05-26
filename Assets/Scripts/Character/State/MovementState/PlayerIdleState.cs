@@ -19,10 +19,10 @@ public class PlayerIdleState : MovementState
     public override void Enter()
     {
         base.Enter();
+        context.aniBridge.SetMoveSpeed(0); 
+
         context.horizontalVelocity = Vector3.zero;
         context.verticalVelocity = 0.0f;
-
-        context.aniBridge.SetMoveSpeed(0); 
 
         actionId = 0;
 
@@ -51,6 +51,12 @@ public class PlayerIdleState : MovementState
             return;
         }
 
+        if (playerInput.jumpStartedThisFrame)
+        {
+            ChangeState(PlayerLocomotionStateId.Jump);
+            return;
+        }
+
         if (actionId == 0)
         {
             if (!canTriggerAction)
@@ -70,8 +76,15 @@ public class PlayerIdleState : MovementState
                 }
                 else
                 {
-                    context.aniBridge.SetIdleActionIndex(actionId);
-                    context.aniBridge.SetIdleActionTrigger();
+                    switch (actionId)
+                    {
+                        case 1 :
+                        aniBridge.PlayClip("Stand1Action2", 0.25f); 
+                        break;
+                        case 2 : 
+                        aniBridge.PlayClip("Stand1Action1", 0.25f); 
+                        break;
+                    }
                 }
             }
         }

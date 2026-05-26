@@ -9,4 +9,9 @@ public enum PlayerLocomotionStateId
     Jump = 5,
     Dash = 6,
     MoveStop = 7,
+    JumpSecond = 8,
+    Fall = 9,
+    Land = 10,
+    Turnback = 11,
+    Null,
 }

@@ -1,147 +1,127 @@
-using System.Collections;
 using UnityEngine;
 
 public class PlayerAnimationBridge : MonoBehaviour
 {
-    // 组件获取
-    private Animator _animator;
 
-    // player传递参数获取
-    private StateMachine<PlayerLocomotionStateId> _stateMachine;
+    private Animator _animaotr;
+    private StateMachine<PlayerLocomotionStateId> _locomotionStateMachine;
     private PlayerContext _context;
 
-    // 基本参数
-    private float currentMoveSpeed;
-    private Coroutine myCoroutine = null;
-
-    private int _moveSpeed = Animator.StringToHash("MoveSpeed");
-    private int _modeOfBeforeStopMove = Animator.StringToHash("ModeOfBeforeStopMove");
-    private int _stoppingEnabled = Animator.StringToHash("StoppingEnabled");
-    private int _leftFootEnabled = Animator.StringToHash("LeftFootEnabled");
-    private int _idleActionIndex = Animator.StringToHash("IdleActionIndex");
-    private int _idleActionTrigger = Animator.StringToHash("IdleActionTrigger");
-    private int _dashTrigger = Animator.StringToHash("DashTrigger");
-    private int _dashFEnable = Animator.StringToHash("DashFEnable");
-    private int _sprintImpulseToMoveBlendEnabled = Animator.StringToHash("SprintImpulseToMoveBlendEnabled");
-    private int _sprintImpulseTrigger = Animator.StringToHash("SprintImpulseTrigger");
-    private int _dashToIdleTrigger = Animator.StringToHash("DashToIdleTrigger");
-    private int _dashToMoveTrigger = Animator.StringToHash("DashToMoveTrigger");
-
-    public void Initialize(PlayerContext context)
+    public void Initialize(Animator animaotr, StateMachine<PlayerLocomotionStateId> locomotionStateMachine, PlayerContext context)
     {
+        _animaotr = animaotr;
+        _locomotionStateMachine = locomotionStateMachine;
         _context = context;
-        _stateMachine = context.stateMachine;
-        _animator = GetComponent<Animator>();
-
     }
 
-    private IEnumerator ToTargetSpeed(float targetSpeed)
+    public void OnAnimatorMove()
     {
-        while (currentMoveSpeed != targetSpeed)
-        {
-            currentMoveSpeed = Mathf.MoveTowards(currentMoveSpeed, targetSpeed, 5f * Time.deltaTime);
-            _animator.SetFloat(_moveSpeed, currentMoveSpeed);
-            yield return null;
-        }
-        myCoroutine = null;
+        _context.deltaPosition = _animaotr.deltaPosition;
+        _context.deltaRotation = _animaotr.deltaRotation;
     }
 
-    #region 动画参数设置
+    #region Animator参数设置
     public void SetMoveSpeed(float moveSpeed)
     {
-        if (myCoroutine != null) StopCoroutine(myCoroutine);
-        currentMoveSpeed = moveSpeed;
-        _animator.SetFloat(_moveSpeed, moveSpeed);
+        _animaotr.SetFloat(AnimatorID.MoveSpeedID, moveSpeed);
     }
 
-    public void SetMoveSpeedToTarget(float targetSpeed)
+    public void SetHasInput(bool hasInput)
     {
-        if (myCoroutine != null) StopCoroutine(myCoroutine);
-        myCoroutine = StartCoroutine(ToTargetSpeed(targetSpeed));
+        _animaotr.SetBool(AnimatorID.HasInputID, hasInput);
+    }
+    #endregion
+
+    #region 动画播放
+    public void PlayDash()
+    {
+        _animaotr.CrossFadeInFixedTime("DashF", 0.1f);
     }
 
-    public void SetModeOfBeforeStopMove(int modeOfBeforeStopMove)
+    public void PlayClip(string clipName, float transitionTime)
     {
-        _animator.SetInteger(_modeOfBeforeStopMove, modeOfBeforeStopMove);
+        _animaotr.CrossFadeInFixedTime(clipName, transitionTime);
     }
 
-    public void SetStoppingEnabled(bool stoppingEnabled)
+    public void PlayClip(string clipName, float transitionTime, float offset)
     {
-        _animator.SetBool(_stoppingEnabled, stoppingEnabled);
+        _animaotr.CrossFadeInFixedTime(clipName, transitionTime, 0, offset);
+    }
+    #endregion
+
+    #region 事件
+    public void OnAnimationEnterEvent(PlayerLocomotionStateId stateId)
+    {
+        if (stateId == _locomotionStateMachine.CurrentStateId)
+        {
+            _locomotionStateMachine.OnAnimationEnterEvent();
+        }
     }
 
-    public void SetIdleActionIndex(int idleActionIndex)
+    public void OnAnimationExitEvent(PlayerLocomotionStateId stateId)
     {
-        _animator.SetInteger(_idleActionIndex, idleActionIndex);
+        if (stateId == _locomotionStateMachine.CurrentStateId)
+        {
+            _locomotionStateMachine.OnAnimationExitEvent();
+        }
     }
 
-    public void SetIdleActionTrigger()
+    public void OnAnimationCompleteEvent(PlayerLocomotionStateId stateId)
     {
-        _animator.SetTrigger(_idleActionTrigger);
+        if (stateId == _locomotionStateMachine.CurrentStateId)
+        {
+            _locomotionStateMachine.OnAnimationCompleteEvent();
+        }
     }
 
-    public void SetDashTrigger()
+    public void OnStopWindowEnterEvent(int footIndex)
     {
-        _animator.SetTrigger(_dashTrigger);
-    }
-
-    public void SetDashFEnable(bool dashFEnable)
-    {
-        _animator.SetBool(_dashFEnable, dashFEnable);
-    }
-
-    public void SetSprintImpulseToMoveBlendEnabled(bool sprintImpulseToMoveBlendEnabled)
-    {
-        _animator.SetBool(_sprintImpulseToMoveBlendEnabled, sprintImpulseToMoveBlendEnabled);
-    }
-
-    public void SetSprintImpulseTrigger()
-    {
-        _animator.SetTrigger(_sprintImpulseTrigger);
-    }
-
-    public void SetDashToIdleTrigger()
-    {
-        _animator.SetTrigger(_dashToIdleTrigger);
-    }
-
-    public void SetDashToMoveTrigger()
-    {
-        _animator.SetTrigger(_dashToMoveTrigger);
-    }
-   #endregion
-
-    #region 动画事件
-    public void OnAnimationEnterEvent(int stateId)
-    {
-        _stateMachine.OnAnimationEnterEvent();  
-    }
-
-    public void OnAnimationExitEvent()
-    {
-        _stateMachine.OnAnimationExitEvent();
-    }
-
-    public void OnStopWindowEnter(int leftFootEnabled)
-    {
-        _animator.SetBool(_leftFootEnabled, leftFootEnabled==0);
+        // 没有进行stateid判断，可能会有问题
+        // 窗口进入后，可能切换动画，需要在其他地方设置canEnterStop为false
         _context.canEnterStop = true;
+        _animaotr.SetBool(AnimatorID.LeftFootEnabledID, footIndex==0);
     }
 
-    public void OnStopWindowExit()
+    public void OnStopWindowExitEvent()
     {
         _context.canEnterStop = false;
     }
 
-    public void OnSprintWindowEnter()
+    /// <summary>
+    /// 用于dash动画clip过渡到sprintImpulse
+    /// 没有设置退出窗口，通过state逻辑完成清除和先后判断
+    /// </summary>
+    public void OnSprintWindowEnterEvent(int stateId)
     {
-        _context.canEnterSprintImpulse = true;
+        if (IsCurrentState(stateId))
+        {
+            _context.canEnterSprintImpulse = true;
+        }
     }
 
-    public void OnSprintWindowExit()
+    /// <summary>
+    /// 用于dash动画clip过渡到moveBlend
+    /// </summary>
+    public void OnCanMoveWindowEnterEvent(int stateId)
     {
-        _context.canEnterSprintImpulse = false;
+        if (IsCurrentState(stateId))
+        {
+            _context.canEnterMoveBlend = true;
+        }
+    }
+
+    public void OnCanLandEvent(int stateId)
+    {
+        if (IsCurrentState(stateId))
+        {
+            // 变量与使用事件传递有何区别？
+            _context.canLand = true;
+        }
     }
     #endregion
 
+    private bool IsCurrentState(int stateId)
+    {
+        return stateId == (int)_locomotionStateMachine.CurrentStateId;
+    }
 }

@@ -29,6 +29,7 @@ public sealed class PlayerInputReader : MonoBehaviour
     public bool dashStartedThisFrame;
     public bool dashCancelThisFrame;
     public bool moveSwitchStartedThisFrame;
+    public bool jumpStartedThisFrame;
 
     public bool moveIsPressed;
 
@@ -60,6 +61,7 @@ public sealed class PlayerInputReader : MonoBehaviour
         _dashAction.canceled += OnDashCanceled;
         _moveSwitchAction.started += OnMoveSwitchStarted;
         _moveSwitchAction.canceled += OnMoveSwitchCanceled;
+        _jumpAction.started += OnJumpStarted;
         #endregion
     }
 
@@ -122,6 +124,7 @@ public sealed class PlayerInputReader : MonoBehaviour
         dashStartedThisFrame = false;
         dashCancelThisFrame = false;
         moveSwitchStartedThisFrame = false;
+        jumpStartedThisFrame = false;
     }
 
     #region 事件函数
@@ -151,6 +154,11 @@ public sealed class PlayerInputReader : MonoBehaviour
     private void OnMoveSwitchCanceled(InputAction.CallbackContext _)
     {
         
+    }
+
+    private void OnJumpStarted(InputAction.CallbackContext _)
+    {
+        jumpStartedThisFrame = true;
     }
     #endregion
 }

@@ -60,4 +60,9 @@ public class StateMachine<TStateId> where TStateId : Enum
     {
         _currentState?.OnAnimationExitEvent();
     }
+
+    public void OnAnimationCompleteEvent()
+    {
+        _currentState?.OnAnimationCompleteEvent();
+    }
 }

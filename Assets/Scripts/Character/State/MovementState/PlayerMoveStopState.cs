@@ -14,8 +14,11 @@ public class PlayerMoveStoppingState : MovementState
         base.Enter();
         
         // 不能设置movespeed，如果设置了会导致moveblend变为walk，如果此时是run，会导致walk->stoprun
-        context.aniBridge.SetStoppingEnabled(true);
+        aniBridge.SetHasInput(false);
         context.stopRequested = false;
+        context.horizontalVelocity = Vector3.zero;
+        context.verticalVelocity = 0.0f;
+        context.isRootMotion = true;
     }
 
     public override void Update()
@@ -44,26 +47,34 @@ public class PlayerMoveStoppingState : MovementState
         }
 
         // 之后做跳跃攻击等检测
+        if (playerInput.jumpStartedThisFrame)
+        {
+            ChangeState(PlayerLocomotionStateId.Jump);
+            return;
+        }
 
     }
 
     public override void Exit()
     {
         base.Exit();
+        context.isRootMotion = false;
     }
 
     public override void OnAnimationEnterEvent()
     {
         base.OnAnimationEnterEvent();
-        context.horizontalVelocity = Vector3.zero;
-        context.verticalVelocity = 0.0f;
-        context.aniBridge.SetMoveSpeed(0);
     }
 
     public override void OnAnimationExitEvent()
     {
         base.OnAnimationExitEvent();
-        // stop动画只播放一次，播放结束退回idle
+    }
+
+    public override void OnAnimationCompleteEvent()
+    {
+        base.OnAnimationCompleteEvent();
+        aniBridge.PlayClip("Idle", 0.25f);
         ChangeState(PlayerLocomotionStateId.Idle);
     }
     #endregion

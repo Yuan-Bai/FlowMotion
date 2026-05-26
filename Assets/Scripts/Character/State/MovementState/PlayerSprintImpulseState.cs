@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class PlayerSprintImpulseState : GroundedMoveState
 {
-    private int loop_count = 2;
-    private int current_loop_count;
     public PlayerSprintImpulseState(PlayerLocomotionStateId id, PlayerContext context, PlayerLocomotionConfig config) : base(id, context, config)
     {
     }
@@ -14,9 +12,7 @@ public class PlayerSprintImpulseState : GroundedMoveState
     public override void Enter()
     {
         base.Enter();
-        context.aniBridge.SetSprintImpulseToMoveBlendEnabled(false);
-        context.aniBridge.SetSprintImpulseTrigger();
-        current_loop_count = 1;
+        aniBridge.PlayClip("SprintImpulse", 0.2f, 0.1f);
     }
 
     public override void Update()
@@ -56,15 +52,15 @@ public class PlayerSprintImpulseState : GroundedMoveState
         base.Exit();
     }
 
-    public override void OnAnimationExitEvent()
+    public override void OnAnimationEnterEvent()
+    {
+        base.OnAnimationEnterEvent();
+        
+    }
+
+    public override void OnAnimationCompleteEvent()
     {
         base.OnAnimationExitEvent();
-        if (current_loop_count != loop_count)
-        {
-            current_loop_count += 1;
-            return;
-        }
-        context.aniBridge.SetSprintImpulseToMoveBlendEnabled(true);
         if (context.sprintEnabled)
         {
             ChangeState(PlayerLocomotionStateId.Sprint);

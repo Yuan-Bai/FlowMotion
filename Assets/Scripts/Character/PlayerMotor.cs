@@ -57,7 +57,10 @@ public sealed class PlayerMotor : MonoBehaviour
             return;
         }
 
-        ApplyGravity(deltaTime);
+        if (_context.gravityEnabled)
+        {
+            ApplyGravity(deltaTime);
+        }
         MoveController(deltaTime);
         RotateToMoveDirection(deltaTime);
     }
@@ -78,22 +81,37 @@ public sealed class PlayerMotor : MonoBehaviour
 
     private void MoveController(float deltaTime)
     {
-        Vector3 velocity = _context.horizontalVelocity + Vector3.up * _context.verticalVelocity;
-        _controller.Move(velocity * deltaTime);
+        if (_context.isRootMotion)
+        {
+            _controller.Move(_context.deltaPosition);
+            _context.rootMotionVelocity = _context.deltaPosition / deltaTime;
+        }
+        else
+        {    
+            Vector3 velocity = _context.horizontalVelocity + Vector3.up * _context.verticalVelocity;
+            _controller.Move(velocity * deltaTime);
+        }
     }
 
     private void RotateToMoveDirection(float deltaTime)
     {
-        if (_context.horizontalVelocity.sqrMagnitude < rotationDeadZone ||
-            _context.moveDirection.sqrMagnitude < rotationDeadZone)
+        if (!_context.isRootMotion)
         {
-            return;
-        }
+            if (_context.horizontalVelocity.sqrMagnitude < rotationDeadZone ||
+                _context.moveDirection.sqrMagnitude < rotationDeadZone)
+            {
+                return;
+            }
 
-        Quaternion targetRotation = Quaternion.LookRotation(_context.moveDirection, Vector3.up);
-        _context.root.rotation = Quaternion.Slerp(
-            _context.root.rotation,
-            targetRotation,
-            rotationSpeed * deltaTime);
+            Quaternion targetRotation = Quaternion.LookRotation(_context.moveDirection, Vector3.up);
+            _context.root.rotation = Quaternion.Slerp(
+                _context.root.rotation,
+                targetRotation,
+                rotationSpeed * deltaTime);
+        }
+        else
+        {
+            _context.root.rotation = _context.deltaRotation * _context.root.rotation;
+        }
     }
 }

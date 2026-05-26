@@ -15,6 +15,6 @@ public interface IState<TStateId> where TStateId : Enum
     public void OnTriggerExit();
     public void OnAnimationEnterEvent();
     public void OnAnimationExitEvent();
-    public void OnAnimationTransitionEvent();
+    public void OnAnimationCompleteEvent();
 
 }
