@@ -65,6 +65,13 @@ public class MovementState : IState<PlayerLocomotionStateId>
 
     public virtual void Update()
     {
+        if (!context.isGrounded
+        && Id != PlayerLocomotionStateId.Jump
+        && Id != PlayerLocomotionStateId.JumpSecond
+        && Id != PlayerLocomotionStateId.Fall)
+        {
+            ChangeState(PlayerLocomotionStateId.Fall);
+        }
     }
 
     protected void ChangeState(PlayerLocomotionStateId id)

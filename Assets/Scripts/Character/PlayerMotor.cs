@@ -81,10 +81,22 @@ public sealed class PlayerMotor : MonoBehaviour
 
     private void MoveController(float deltaTime)
     {
-        if (_context.isRootMotion)
+        if (_context.rootMotionPositionXZ && _context.rootMotionPositionY)
         {
             _controller.Move(_context.deltaPosition);
             _context.rootMotionVelocity = _context.deltaPosition / deltaTime;
+        }
+        else if (_context.rootMotionPositionXZ)
+        {
+            Vector3 deltaPosition = new(_context.deltaPosition.x, deltaTime*_context.verticalVelocity, _context.deltaPosition.z);
+            _controller.Move(deltaPosition);
+            _context.rootMotionVelocity = deltaPosition / deltaTime;
+        }
+        else if (_context.rootMotionPositionY)
+        {
+            Vector3 deltaPosition = new Vector3(0.0f, _context.deltaPosition.y, 0.0f) + _context.horizontalVelocity * deltaTime;
+            _controller.Move(deltaPosition);
+            _context.rootMotionVelocity = deltaPosition / deltaTime;
         }
         else
         {    
@@ -95,7 +107,11 @@ public sealed class PlayerMotor : MonoBehaviour
 
     private void RotateToMoveDirection(float deltaTime)
     {
-        if (!_context.isRootMotion)
+        if (_context.rootMotionRotation)
+        {
+            _context.root.rotation = _context.deltaRotation * _context.root.rotation;
+        }
+        else
         {
             if (_context.horizontalVelocity.sqrMagnitude < rotationDeadZone ||
                 _context.moveDirection.sqrMagnitude < rotationDeadZone)
@@ -108,10 +124,6 @@ public sealed class PlayerMotor : MonoBehaviour
                 _context.root.rotation,
                 targetRotation,
                 rotationSpeed * deltaTime);
-        }
-        else
-        {
-            _context.root.rotation = _context.deltaRotation * _context.root.rotation;
         }
     }
 }

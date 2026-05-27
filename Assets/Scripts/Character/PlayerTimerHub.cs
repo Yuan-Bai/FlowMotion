@@ -97,6 +97,11 @@ public class PlayerTimeHub
         return false;
     }
 
+    public bool IsContainCDT(string name)
+    {
+        return timers.ContainsKey(name);
+    }
+
     public void Cancel(string name)
     {
         if (timers.TryGetValue(name, out var cdt))

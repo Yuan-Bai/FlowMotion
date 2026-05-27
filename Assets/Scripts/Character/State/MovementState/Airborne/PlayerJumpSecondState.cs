@@ -1,5 +1,7 @@
 
 
+using UnityEngine;
+
 public class PlayerJumpSecondState : MovementState
 {
     public PlayerJumpSecondState(PlayerLocomotionStateId id, PlayerContext context, PlayerLocomotionConfig config) : base(id, context, config)
@@ -19,7 +21,7 @@ public class PlayerJumpSecondState : MovementState
         }
         context.gravityEnabled = false;
         context.canLand = false;
-        context.isRootMotion = true;
+        context.rootMotionPositionY = true;
         context.verticalVelocity = 0.0f;
     }
 
@@ -28,7 +30,7 @@ public class PlayerJumpSecondState : MovementState
         base.Exit();
         context.gravityEnabled = true;
         context.canLand = false;
-        context.isRootMotion = false;
+        context.rootMotionPositionY = false;
         if (context.rootMotionVelocity.y < 0)
         {
             context.verticalVelocity = context.rootMotionVelocity.y;
@@ -37,6 +39,7 @@ public class PlayerJumpSecondState : MovementState
         {
             context.verticalVelocity = -2.0f;
         }
+        context.horizontalVelocity = new Vector3(context.rootMotionVelocity.x, 0, context.rootMotionVelocity.z);
     }
 
     public override void Update()

@@ -19,7 +19,7 @@ public class PlayerFallState : MovementState
         // 检测滑翔
 
         // 检测是否落地
-        if (context.isGrounded)
+        if (context.justLanded)
         {
             ChangeState(PlayerLocomotionStateId.Land);
             return;

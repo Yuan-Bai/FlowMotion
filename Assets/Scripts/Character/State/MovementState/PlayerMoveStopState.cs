@@ -18,7 +18,7 @@ public class PlayerMoveStoppingState : MovementState
         context.stopRequested = false;
         context.horizontalVelocity = Vector3.zero;
         context.verticalVelocity = 0.0f;
-        context.isRootMotion = true;
+        context.rootMotionPositionXZ = true;
     }
 
     public override void Update()
@@ -58,7 +58,9 @@ public class PlayerMoveStoppingState : MovementState
     public override void Exit()
     {
         base.Exit();
-        context.isRootMotion = false;
+        context.rootMotionPositionXZ = false;
+        context.horizontalVelocity = new Vector3(context.rootMotionVelocity.x, 0, context.rootMotionVelocity.z);
+        context.verticalVelocity = context.rootMotionVelocity.y;
     }
 
     public override void OnAnimationEnterEvent()

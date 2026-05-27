@@ -74,17 +74,26 @@ public class PlayerAnimationBridge : MonoBehaviour
         }
     }
 
-    public void OnStopWindowEnterEvent(int footIndex)
+    public void OnStopWindowEnterEvent(int stateId)
     {
-        // 没有进行stateid判断，可能会有问题
-        // 窗口进入后，可能切换动画，需要在其他地方设置canEnterStop为false
-        _context.canEnterStop = true;
-        _animaotr.SetBool(AnimatorID.LeftFootEnabledID, footIndex==0);
+        if (IsCurrentState(stateId))
+        {
+            _context.canEnterStop = true;
+        }
     }
 
-    public void OnStopWindowExitEvent()
+    public void OnLeftFootEnabledEvent(int footIndex)
     {
-        _context.canEnterStop = false;
+        _context.leftFootEnabled = footIndex==0;
+        _animaotr.SetBool(AnimatorID.LeftFootEnabledID, _context.leftFootEnabled);
+    }
+
+    public void OnStopWindowExitEvent(int stateId)
+    {
+        if (IsCurrentState(stateId))
+        {
+            _context.canEnterStop = false;
+        }
     }
 
     /// <summary>

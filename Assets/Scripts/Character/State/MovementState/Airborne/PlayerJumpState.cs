@@ -12,10 +12,17 @@ public class PlayerJumpState : MovementState
     public override void Enter()
     {
         base.Enter();
-        aniBridge.PlayClip("JumpL", 0.1f);
+        if (context.leftFootEnabled)
+        {
+            aniBridge.PlayClip("JumpL", 0.1f);
+        }
+        else
+        {
+            aniBridge.PlayClip("JumpR", 0.1f);
+        }
         context.gravityEnabled = false;
         context.canLand = false;
-        context.isRootMotion = true;
+        context.rootMotionPositionY = true;
         context.verticalVelocity = 0.0f;
     }
 
@@ -24,7 +31,7 @@ public class PlayerJumpState : MovementState
         base.Exit();
         context.gravityEnabled = true;
         context.canLand = false;
-        context.isRootMotion = false;
+        context.rootMotionPositionY = false;
         if (context.rootMotionVelocity.y < 0)
         {
             context.verticalVelocity = context.rootMotionVelocity.y;

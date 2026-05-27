@@ -23,7 +23,7 @@ public class PlayerDashState : MovementState
 
         context.horizontalVelocity = Vector3.zero;
         context.verticalVelocity = 0.0f;
-        context.isRootMotion = true;
+        context.rootMotionPositionXZ = true;
     }
 
     public override void Exit()
@@ -31,7 +31,9 @@ public class PlayerDashState : MovementState
         base.Exit();
         context.canEnterSprintImpulse = false;
         context.canEnterMoveBlend = false;
-        context.isRootMotion = false;
+        context.rootMotionPositionXZ = false;
+        context.horizontalVelocity = new Vector3(context.rootMotionVelocity.x, 0, context.rootMotionVelocity.z);
+        context.verticalVelocity = context.rootMotionVelocity.y;
     }
 
     public override void Update()

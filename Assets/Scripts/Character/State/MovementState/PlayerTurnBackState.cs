@@ -12,16 +12,20 @@ public class PlayerTurnbackState : MovementState
     {
         base.Enter();
         aniBridge.PlayClip("RunTurnback", 0.1f);
-        context.isRootMotion = true;
+        context.rootMotionPositionXZ = true;
+        context.rootMotionRotation = true;
     }
 
     public override void Exit()
     {
         base.Exit();
-        context.isRootMotion = false;
+        context.rootMotionPositionXZ = false;
+        context.rootMotionRotation = false;
         context.stopRequested = false;
         context.timeHub.Cancel("MoveToStopMove");
-        context.horizontalVelocity = context.rootMotionVelocity;
+        context.horizontalVelocity = new Vector3(context.rootMotionVelocity.x, 0, context.rootMotionVelocity.z);
+        context.verticalVelocity = context.rootMotionVelocity.y;
+        context.canEnterStop = false;
     }
 
     public override void Update()
@@ -55,6 +59,14 @@ public class PlayerTurnbackState : MovementState
         {
             if (context.canEnterStop)
             {
+                if (context.leftFootEnabled)
+                {
+                    aniBridge.PlayClip("StopSprintL", 0.25f);
+                }
+                else
+                {
+                    aniBridge.PlayClip("StopSprintR", 0.25f);
+                }
                 ChangeState(PlayerLocomotionStateId.MoveStop);
                 return;
             }

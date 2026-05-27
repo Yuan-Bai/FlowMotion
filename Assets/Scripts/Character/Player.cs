@@ -43,6 +43,7 @@ public class Player : MonoBehaviour
         _context.timeHub = new PlayerTimeHub(stateMachine);
 
         InitialState();
+        _groundDetector.Initialize(_context);
         _motor.Initialize(_context, config, _groundDetector);
         _context.aniBridge.Initialize(_animator, stateMachine, _context);
         // _context.aniBridge.Initialize(_context);
@@ -76,13 +77,14 @@ public class Player : MonoBehaviour
         UpdateRunModeToggle();
         _context.timeHub.Update(Time.deltaTime, Time.unscaledDeltaTime);
         _motor.UpdateGrounding();
+        _groundDetector.UpdateHeight();
         // 状态逻辑更新
         stateMachine.Update();
         _motor.ApplyMovement(Time.deltaTime);
-        if (stateMachine.CurrentStateId == PlayerLocomotionStateId.Sprint || stateMachine.CurrentStateId == PlayerLocomotionStateId.Turnback)
-        {
-            Debug.Log("player=>"+transform.position);
-        }
+        // if (stateMachine.CurrentStateId == PlayerLocomotionStateId.Sprint || stateMachine.CurrentStateId == PlayerLocomotionStateId.Turnback)
+        // {
+        //     Debug.Log("player=>"+transform.position);
+        // }
         // AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
         // Debug.Log("当前 State Hash: " + stateInfo.shortNameHash);
 

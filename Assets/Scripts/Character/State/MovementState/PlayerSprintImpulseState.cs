@@ -17,27 +17,6 @@ public class PlayerSprintImpulseState : GroundedMoveState
 
     public override void Update()
     {
-        // 如果取消移动输入
-        if (!playerInput.moveIsPressed)
-        {
-            context.stopRequested = true;
-            if (context.canEnterStop)
-            {
-                ChangeState(PlayerLocomotionStateId.MoveStop);
-                return;
-            }
-        }
-        else
-        {
-            context.stopRequested = false;
-        }
-
-        if (playerInput.dashStartedThisFrame)
-        {
-            ChangeState(PlayerLocomotionStateId.Dash);
-            return;
-        }
-
         if (playerInput.dashHeldDuration>0.5f)
         {
             // 这里应该只能在sprint impulse状态进入，

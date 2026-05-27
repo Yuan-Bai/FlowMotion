@@ -12,7 +12,14 @@ public class PlayerLandState : MovementState
     {
         base.Enter();
 
-        aniBridge.PlayClip("LandLight", 0.0f);
+        if (context.fallDistance < 10f)
+        {
+            aniBridge.PlayClip("LandLight", 0.1f);
+        }
+        else
+        {
+            aniBridge.PlayClip("LandHeavy", 0.1f);
+        }
 
         context.horizontalVelocity = Vector3.zero;
         // context.verticalVelocity = 0.0f;

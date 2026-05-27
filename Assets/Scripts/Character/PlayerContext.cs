@@ -31,7 +31,9 @@ public class PlayerContext
     public Vector3 groundNormal;
     public Vector3 moveDirection;
     public bool isLockMove;
-    public bool isRootMotion;
+    public bool rootMotionPositionXZ;
+    public bool rootMotionPositionY;
+    public bool rootMotionRotation;
     public float stateTime;
     public float lastLandTime;
     public bool runModeEnabled;
@@ -41,6 +43,15 @@ public class PlayerContext
     public bool canEnterMoveBlend;
     public bool stopRequested;
     public bool gravityEnabled = true;
-    public bool canLand;
+    public bool canLand; // 防止离地马上进入fall
+    public bool leftFootEnabled = true;
+    public bool wasGroundedLastFrame = true;
+    public bool justLeftGround;
+    public bool justLanded;
+    public float airborneMaxY;
+    public float airborneStartY;
+    public float landingY;
+    public float fallDistance;
+    public float heightFromGround;
     #endregion
 }

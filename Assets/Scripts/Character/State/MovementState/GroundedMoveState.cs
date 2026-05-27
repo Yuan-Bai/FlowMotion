@@ -1,5 +1,4 @@
 
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 public abstract class GroundedMoveState : MovementState
@@ -26,6 +25,8 @@ public abstract class GroundedMoveState : MovementState
         };
         aniBridge.SetHasInput(true);
         aniBridge.SetMoveSpeed(data.moveSpeed);
+
+        context.timeHub.Start("TurnbackCoolDown", 0.15f, true);
     }
 
     public override void Exit()
@@ -33,10 +34,12 @@ public abstract class GroundedMoveState : MovementState
         base.Exit();
         context.stopRequested = false;
         context.timeHub.Cancel("MoveToStopMove");
+        context.canEnterStop = false;
     }
 
     public override void Update()
     {
+        base.Update();
         // 如果取消移动输入
         if (!playerInput.moveIsPressed && !context.stopRequested)
         {
@@ -67,14 +70,15 @@ public abstract class GroundedMoveState : MovementState
             }
             return;
         }
-        if (playerInput.jumpStartedThisFrame)
+        if (playerInput.jumpStartedThisFrame )
         {
             ChangeState(PlayerLocomotionStateId.Jump);
             return;
         }
         UpdateMoveDirection(context.camTransform);
         if (Id != PlayerLocomotionStateId.Walk && Id != PlayerLocomotionStateId.Run &&
-            Vector2.Dot(context.moveDirection, new Vector3(context.root.forward.x, 0.0f, context.root.forward.z)) < -0.7f
+            context.timeHub.IsFinished("TurnbackCoolDown") &&
+            Vector3.Dot(context.moveDirection, new Vector3(context.root.forward.x, 0.0f, context.root.forward.z)) < -0.7f
         )
         {
             ChangeState(PlayerLocomotionStateId.Turnback);
