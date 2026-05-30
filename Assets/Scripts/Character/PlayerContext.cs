@@ -53,5 +53,6 @@ public class PlayerContext
     public float landingY;
     public float fallDistance;
     public float heightFromGround;
+    public float slopeAngle;
     #endregion
 }

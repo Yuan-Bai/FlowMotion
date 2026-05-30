@@ -62,15 +62,28 @@ public class MovementState : IState<PlayerLocomotionStateId>
     public void PhysicsUpdate()
     {
     }
-
+    
+    private bool cdtStart;
     public virtual void Update()
     {
         if (!context.isGrounded
         && Id != PlayerLocomotionStateId.Jump
         && Id != PlayerLocomotionStateId.JumpSecond
-        && Id != PlayerLocomotionStateId.Fall)
+        && Id != PlayerLocomotionStateId.Fall
+        && !cdtStart)
         {
-            ChangeState(PlayerLocomotionStateId.Fall);
+            context.timeHub.Start("WaitToFallFor", 0.1f, true, PlayerLocomotionStateId.Null, () => {ChangeState(PlayerLocomotionStateId.Fall);});
+            cdtStart = true;
+        }
+        
+        if (!context.isGrounded
+        && Id != PlayerLocomotionStateId.Jump
+        && Id != PlayerLocomotionStateId.JumpSecond
+        && Id != PlayerLocomotionStateId.Fall
+        )
+        {
+            context.timeHub.Cancel("WaitToFallFor");
+            cdtStart = false;
         }
     }
 

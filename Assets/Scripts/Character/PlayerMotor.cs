@@ -81,6 +81,10 @@ public sealed class PlayerMotor : MonoBehaviour
 
     private void MoveController(float deltaTime)
     {
+        if (_context.slopeAngle > _config.MaxAngle)
+        {
+            return;
+        }
         if (_context.rootMotionPositionXZ && _context.rootMotionPositionY)
         {
             _controller.Move(_context.deltaPosition);
@@ -99,7 +103,7 @@ public sealed class PlayerMotor : MonoBehaviour
             _context.rootMotionVelocity = deltaPosition / deltaTime;
         }
         else
-        {    
+        {
             Vector3 velocity = _context.horizontalVelocity + Vector3.up * _context.verticalVelocity;
             _controller.Move(velocity * deltaTime);
         }

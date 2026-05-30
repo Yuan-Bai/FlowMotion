@@ -6,6 +6,7 @@ using UnityEngine;
 public sealed class PlayerLocomotionConfig : ScriptableObject
 {
     [field: SerializeField] public float Gravity {get; private set;} = -10;
+    [field: SerializeField] public float MaxAngle {get; private set;} = 45f;
     [field: SerializeField] public PlayerIdleData PlayerIdleData { get; private set; } = new PlayerIdleData();
     [field: SerializeField] public PlayerMoveData PlayerWalkData { get; private set; } = new PlayerWalkData();
     [field: SerializeField] public PlayerMoveData PlayerRunData { get; private set; } = new PlayerRunData();

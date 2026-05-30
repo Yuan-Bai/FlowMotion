@@ -123,7 +123,12 @@ public abstract class GroundedMoveState : MovementState
     private void UpdateVelocity(PlayerMoveData data)
     {
         // 更新水平速度
-        Vector3 targetHorizontalVelocity = data.moveSpeed * context.moveDirection;
+        if (context.slopeAngle > config.MaxAngle)
+        {
+            context.horizontalVelocity = Vector3.zero;
+            return;
+        }
+        Vector3 targetHorizontalVelocity = data.moveSpeed * Vector3.ProjectOnPlane(context.moveDirection, context.groundNormal).normalized;
         context.horizontalVelocity = Vector3.MoveTowards(
             context.horizontalVelocity,
             targetHorizontalVelocity,

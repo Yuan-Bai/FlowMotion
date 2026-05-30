@@ -560,11 +560,16 @@ MonoBehaviour:
     aniBridge: {fileID: 0}
     horizontalVelocity: {x: 0, y: 0, z: 0}
     verticalVelocity: 0
+    deltaPosition: {x: 0, y: 0, z: 0}
+    deltaRotation: {x: 0, y: 0, z: 0, w: 0}
+    rootMotionVelocity: {x: 0, y: 0, z: 0}
     isGrounded: 0
     groundNormal: {x: 0, y: 0, z: 0}
     moveDirection: {x: 0, y: 0, z: 0}
     isLockMove: 0
-    isRootMotion: 0
+    rootMotionPositionXZ: 0
+    rootMotionPositionY: 0
+    rootMotionRotation: 0
     stateTime: 0
     lastLandTime: 0
     runModeEnabled: 0
@@ -575,8 +580,15 @@ MonoBehaviour:
     stopRequested: 0
     gravityEnabled: 1
     canLand: 0
-  leftFoot: {fileID: 607298474}
-  rightFoot: {fileID: 1044210414}
+    leftFootEnabled: 1
+    wasGroundedLastFrame: 1
+    justLeftGround: 0
+    justLanded: 0
+    airborneMaxY: 0
+    airborneStartY: 0
+    landingY: 0
+    fallDistance: 0
+    heightFromGround: 0
 --- !u!114 &365352435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -592,8 +604,51 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  checkDistance: 0.12
-  rayOriginOffset: {x: 0, y: 0.11, z: 0}
+  checkDistance: 0.05
+  sphereRadius: 0.14
+  rayOriginOffset: {x: 0, y: 0.15, z: 0}
+  heightCheckDistance: 30
+  context:
+    inputReader: {fileID: 0}
+    root: {fileID: 0}
+    controller: {fileID: 0}
+    camTransform: {fileID: 0}
+    aniBridge: {fileID: 0}
+    horizontalVelocity: {x: 0, y: 0, z: 0}
+    verticalVelocity: 0
+    deltaPosition: {x: 0, y: 0, z: 0}
+    deltaRotation: {x: 0, y: 0, z: 0, w: 0}
+    rootMotionVelocity: {x: 0, y: 0, z: 0}
+    isGrounded: 0
+    groundNormal: {x: 0, y: 0, z: 0}
+    moveDirection: {x: 0, y: 0, z: 0}
+    isLockMove: 0
+    rootMotionPositionXZ: 0
+    rootMotionPositionY: 0
+    rootMotionRotation: 0
+    stateTime: 0
+    lastLandTime: 0
+    runModeEnabled: 0
+    sprintEnabled: 0
+    canEnterStop: 0
+    canEnterSprintImpulse: 0
+    canEnterMoveBlend: 0
+    stopRequested: 0
+    gravityEnabled: 1
+    canLand: 0
+    leftFootEnabled: 1
+    wasGroundedLastFrame: 1
+    justLeftGround: 0
+    justLanded: 0
+    airborneMaxY: 0
+    airborneStartY: 0
+    landingY: 0
+    fallDistance: 0
+    heightFromGround: 0
+  controller: {fileID: 0}
+  groundPoint: {x: 0, y: 0, z: 0}
+  groundNormal: {x: 0, y: 0, z: 0}
+  groundDistance: {x: 0, y: 0, z: 0}
   isGrounded: 1
 --- !u!114 &365352436
 MonoBehaviour:
@@ -1094,12 +1149,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &607298474 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2754360746077169317, guid: 3dd38525dc3e51840b0408af838b5f70,
-    type: 3}
-  m_PrefabInstance: {fileID: 2145448142}
-  m_PrefabAsset: {fileID: 0}
 --- !u!43 &663213230
 Mesh:
   m_ObjectHideFlags: 0
@@ -1675,12 +1724,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!4 &1044210414 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -3661835193987404179, guid: 3dd38525dc3e51840b0408af838b5f70,
-    type: 3}
-  m_PrefabInstance: {fileID: 2145448142}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1230242344
 GameObject:
   m_ObjectHideFlags: 0
